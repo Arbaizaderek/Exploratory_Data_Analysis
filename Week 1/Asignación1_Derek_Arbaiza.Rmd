@@ -1,0 +1,204 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Asignación 1 - Derek Arbaiza Barrantes {.tabset}
+
+### Consumo de proteina en Europa
+
+Carga de datos
+```{r echo=FALSE}
+library(corrplot)
+EuropeData <- read.csv("ConsumoEuropa.csv", header = TRUE, sep = ";", dec=",", row.names = 1)
+print(EuropeData)
+#str(EuropeData)
+```
+
+Máximo, Mínimo & Promedio \
+Lista de consumo total por países:
+```{r echo=FALSE}
+Sumatory <- c(rowSums(EuropeData))
+
+Sumatory
+cat("El país de más consumo fue Francia con", max(Sumatory))
+cat("El país de menos consumo fue Noruega con", min(Sumatory))
+cat("El promedio de consumo fue de ", mean(Sumatory))
+```
+
+Bloxplot & Datos Atípicos
+```{r echo=FALSE}
+boxplot(EuropeData, main="Valores atípicos", col="magenta")
+cat("Se puede observar que Carne-Animal, Huevos, Carne-Pescado tienen datos atípicos.")
+
+```
+
+Correlaciones
+```{r echo=FALSE}
+corrplot(cor(EuropeData), method="number")
+cat("Basado en el gráfico anterior se puede determinar que:\
+    Hay un relación fuerte negativa entre semillas y carne de cerdo: esto dando a entender que no necesariamente cuando consumían un producto, no necesariamente el otro estaba disponible.\
+    Tambien se puede observar una relación fuerte positiva entre semillas y cereales: esto da a comprender que cuando estaba uno disponible, el otro también.\
+    Por último se puede observar una relación fuerte negativa entre cereales y huevo. Esto dando a entender que mientras un producto se consumia, no necesariamente el otro producto era consumido.")
+```
+
+Gráfico de dispersión\
+```{r echo=FALSE}
+plot(EuropeData$CarneCerdo, EuropeData$CarnePescado, xlab = "Carne de cerdo", ylab="Carne de pescado")
+cat("Se puede determinar basado en el gráfico anterior que la cantidad del cerdo y pescado fluctuaba tanto que no se genera un posible tendencia.")
+```
+
+```{r echo=FALSE}
+plot(EuropeData$Frutas, EuropeData$Semillas, xlab="Frutas", ylab="Semillas")
+cat("Se puede determinar basado en el gráfico anterior se forma un grupo de frutas entre 4 gramos y semillas entre 1 a 2 gramos; esto dando a enteder que ese puso ser el tamaño común en esos items.")
+```
+
+
+### Posibilidades de un infarto
+Carga de data
+```{r echo=FALSE}
+HeartData <- read.csv("SAheart.csv", header = TRUE, sep = ";", dec=".")
+HeartDataJustNumeric <- HeartData[-c(5, 10)]
+#str(HeartData)
+```
+
+Mínimo, máximo y promedio
+```{r echo=FALSE}
+AllAddedData <- (rowSums(HeartDataJustNumeric))
+cat("Sumando todos los datos por fila, el máximo obtenido es:" , max(AllAddedData))
+cat("Sumando todos los datos por fila, el mínimo obtenido es:" , min(AllAddedData))
+cat("El promedio obtenido es:" , mean(AllAddedData))
+
+```
+
+Boxplot
+\
+```{r echo=FALSE}
+HeartDataWithAtipics <- HeartDataJustNumeric[-c(4, 8)]
+boxplot(HeartDataWithAtipics, main="Variables con datos atípicos")
+```
+
+Matriz de relaciones\
+```{r echo=FALSE}
+corrplot(cor(HeartDataJustNumeric), method="number",)
+cat("Basado en el gráfico anterior se puede concluir que:\
+Hay una relación positiva fuerte entre la obesidad (obesity) y adiposidad(adiposity). Esto dando a entender que entre más obeso se sea y más grasa debajo de la piel se tenga(adiposidad): más alto el riesgo de sufrir un infarto.\ 
+Hay una relación negativa fuerte entre el tabaco(tabacco) y el colesterol de lipoproteínas de baja densidad(ldl). Esto se comprende que aunque una persona fume y tenga ldl, no es tan alto el riesgo de un infarto.\
+Hay una relación fuerte positiva entre la edad(age) y la adiposidad(adiposity). Esto se podría interpretar como que entre más adiposidad se tenga y más entrado en edad se esté: más alto el riesgo de sufrir un infarto.")
+```
+
+Gráfico de dispersión\
+```{r echo=FALSE}
+plot(HeartDataJustNumeric$tobacco, HeartDataJustNumeric$age, xlab="Tabaco", ylab="Edad")
+cat("Basado en el gráfico anterior se puede determinar que la mayoría de personas en la muestra no fumaba o fumaba poco.")
+
+plot(HeartDataJustNumeric$obesity, HeartDataJustNumeric$alcohol, xlab="Obesidad", ylab="Alcohol")
+cat("Se puede determinar basado en el gráfico anterior que no necesariamente el hecho de tener obesidad está relacionado con el alcohol, al tener una gran concentración con nivel de alcohol 0.")
+```
+
+### Titanic
+Carga de data
+```{r echo=FALSE}
+TitanicData <- read.csv("titanic.csv", header = TRUE, sep = ",", dec=".", row.names = 1)
+#str(TitanicData)
+  
+```
+
+Mínimo, Máximo & Promedio con NA.
+```{r echo=FALSE}
+getMax <- function(){
+  maxValue <- 0
+  for(i in 1:length(TitanicData$Age)){
+    if(is.na(TitanicData$Age[i])){
+      
+    }
+    else{
+      if(TitanicData$Age[i]>maxValue){
+        maxValue <- TitanicData$Age[i]
+      }
+      else{
+        
+      }
+    }
+  }
+  return(cat("La mayor edad encontrada fue de:", maxValue))
+}
+getMin <- function(){
+  minValue <- TitanicData$Age[1]
+  for(i in 1:length(TitanicData$Age)){
+    if(is.na(TitanicData$Age[i])){
+      
+    }
+    else{
+      if(TitanicData$Age[i]<minValue){
+        minValue <- TitanicData$Age[i]
+      }
+      else{
+        
+      }
+    }
+  }
+  return(cat("La menor edad encontrada fue de:", minValue))
+}
+getAverage <- function(){
+  counter <- 0
+  sumatory <- 0
+  for(i in 1:length(TitanicData$Age)){
+    if(is.na(TitanicData$Age[i])){
+      
+    }
+    else{
+      counter <- counter + 1
+      sumatory <- sumatory + TitanicData$Age[i]
+    }
+  }
+  return(cat("Promedio encontrado", (sumatory/counter)))
+}
+
+getMax()
+getMin()
+getAverage()
+
+```
+
+Mínimo, Máximo & Promedio con 0 en vez de NA.
+```{r echo=FALSE}
+TitanicData[is.na(TitanicData)] <- 0
+cat("La edad máxima encontrada fue de", max(TitanicData$Age))
+cat("La edad mínima encontrada fue de", min(TitanicData$Age))
+cat("La edad promedio fue de", mean(TitanicData$Age))
+```
+
+Diferencias
+```{r echo=FALSE}
+cat("Se puede apreciar una diferencia entre la edad mínima. Esto porque se establece 0 como el valor a reemplazar los N/A. Y siempre va a ser el valor menor. Sobre todo tomando en cuenta la naturaleza de la variable, una edad, no existe menos 1 año.\
+La otra diferencia apreciable es el promedio. Esto porque en la primera comparativa se toma en cuenta solo los valores diferentes a N/A. El el segundo caso se toman en cuenta porque se reemplazaron con 0.\n
+Mi recomendación es usar el primer método. Considero que es más exacto pero sería una regla del 'approach' que se quiera tomar.")
+```
+
+Boxplot
+```{r echo=FALSE}
+TitanicDataJustNumeric <- TitanicData[-c(3, 4, 8, 10, 11)]
+boxplot(TitanicDataJustNumeric[-c(1,2)], main="Boxplot con valores atípicos")
+```
+Matrix de correlaciones
+```{r echo=FALSE}
+TitanicDataJustNumeric[is.na(TitanicDataJustNumeric)] <- 0
+corrplot(cor(TitanicDataJustNumeric), method="number")
+cat("Basado en el gráfico anterior se puede determinar que:\
+Hay una relación fuerte negativa entre tarifa (fare) y clase(class). Esto dando a entender que no necesariamente el costo del tiquete iba de acuerdo con la clase.\n
+Hay una relación fuerte negativa entre si sobrevivió y la tarifa; dando a entender que no necesariamente la clase fue un factor de sobrevivencia.\n
+Hay una relación negativa fuerte entre la edad y la clase. Esto dando a entender que no necesariamente la clase iba con el edad.")
+```
+
+Plot
+```{r echo=FALSE}
+plot(TitanicDataJustNumeric$Fare, TitanicDataJustNumeric$Pclass, xlab="Tarifa", ylab="Clase")
+cat("Se puede interpretar que la mayoría de personas viajaron en primer clase. Y hubo una persona que pagó más de 500$ ")
+
+plot(TitanicDataJustNumeric$Age, TitanicDataJustNumeric$Pclass, xlab="Edad", ylab="Tarifa")
+cat("Se puede interpretar que la edad no era un factor para la clase. Hubo personas de todas las edades viajando en la primera, segunda y tercera clase.  ")
+```
