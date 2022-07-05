@@ -1,0 +1,207 @@
+---
+title: "Asignación2_Derek_Arbaiza"
+author: "Derek Arbaiza Barrantes"
+date: '2022-07-02'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Results {.tabset}
+
+### Contaminación del aire con la mortalidad
+
+
+```{r echo=FALSE}
+library("FactoMineR") 
+library("factoextra")
+library("fmsb")
+document_theme <- theme_grey() + theme(panel.border = element_rect(fill = NA,color = "white"),
+            plot.title = element_text(hjust = 0.5))
+```
+
+1-
+```{r}
+ContaminationData <- read.csv("contaminacion.csv", sep=",", dec=".", header = TRUE)
+```
+
+
+2-
+```{r}
+dim(ContaminationData)
+str(ContaminationData)
+```
+
+3-
+```{r}
+str(ContaminationData)
+```
+
+4-
+```{r}
+model <- prcomp(ContaminationData,scale. = TRUE,center = TRUE)
+fviz_pca_ind(model, pointsize = 2, pointshape = 22, fill = "#5500e7", 
+             repel = TRUE,ggtheme = document_theme)
+```
+5-
+```{r}
+fviz_pca_var(model,col.var = "#2E9FDF",col.ind = "#696969",ggtheme = document_theme)
+```
+
+6-
+```{r}
+res<-PCA(ContaminationData, scale.unit=TRUE, ncp=5, graph = FALSE)
+res
+
+cos2.ind<-(res$ind$cos2[,1]+res$ind$cos2[,2])*100
+cos2.ind
+
+fviz_pca_var(res,col.var = "#2E9FDF",col.ind = "#696969",ggtheme = document_theme, select.var = list(cos2 = 0.15))
+
+fviz_pca_ind(res, pointsize = 5, pointshape = 21, fill = "#E7B800", repel = TRUE, select.ind = list(cos2 = 0.15),ggtheme = document_theme)
+
+cat("Se puede apreciar una disminución en el centro del segundo plano. Es importante eliminarlos para depuración de la data y las salidas o resultados sean más precisos.")
+```
+
+7-
+```{r echo=FALSE}
+cat("Basado en el gráfico se puede apreciar que:\
+Hay una relación fuerte positiva entre UnidadesVivienda, AnosEscolares y EmpleoAlto: esto dando a entender que cuando aumenta los años escolares, aumenta el empleo y también aumenta las unidades de vivienda.\
+Además hay una relación fuerte negativa entre UnidadesVivienda y TasaMortalidad: esto se puede interpretar que entre más unidades de vivienda se tenga, su tasa de mortalidad baja.
+Hay otra relación fuerte negativa entre PoblacionMayorIgual65 e IngresosMay3000: se puede comprender como son las personas menores a 65 que tienen ingresos mayores a 3000. A como se envejece, se va perdiendo su ingreso.\
+Por último se puede apreciar una relación fuerte positiva entre TazaMortalidad y TemperaturaJulio, o sea que cuando sube la temperatura en el mes de Julio, sube también la tasa de mortalidad.")
+```
+
+8-
+```{r}
+fviz_pca_biplot(res, col.var = "#FF1171", select.var = list(cos2 = 0.15), col.ind = "darkblue", select.ind = list(cos2 = 0.15), ggtheme = document_theme)
+cat("Sí son los mismo individuos y clusters. Del individuo 29 se puede determinar que es una personas que cumple con los parámetos para ser medido: cumplir con un coseno mayor a 15%; pero es un atípico. Es una persona que no cumple con el comportamiento a esperar de los demás. El aporte de ambos gráficos es grande. Dado que uno me permite identificar las relaciones entre variables y el otro coloca los individios en el plano generando grupos o clusters.")
+```
+
+9-
+```{r}
+model_h <- hclust(dist(ContaminationData), method = "complete")
+fviz_dend(model_h, k = 3, cex = 0.3, color_labels_by_k = FALSE, rect = TRUE,k_colors = c("#1B9E77", "#D95F02", "#7570B3"), ggtheme = document_theme)
+
+model_h <- hclust(dist(ContaminationData),method= "ward.D")
+fviz_dend(model_h, k = 3, cex = 0.3, color_labels_by_k = FALSE, rect = TRUE,k_colors = c("#1B9E77", "#D95F02", "#7570B3"), ggtheme = document_theme)
+
+Group_ <- cutree(model_h, k=3)
+newData <- cbind(ContaminationData, Group_)
+write.csv(newData, "contaminacionConGrupo.csv")
+```
+
+10-
+```{r}
+
+```
+
+### Concentración de PM2.5 en la ciudad de Beijing
+1-
+```{r}
+BeijingData <- read.csv("DatosBeijing.csv", sep=",", dec=".", header = TRUE, row.names = 1)
+
+```
+
+2-
+```{r}
+summary(BeijingData)
+dim(BeijingData)
+```
+
+3-
+```{r}
+
+str(BeijingData)
+```
+
+4-
+```{r}
+counter <- 0
+for(i in 1:length(BeijingData$ConcetracionParticula_pm2.5)){
+  if(is.na(BeijingData$ConcetracionParticula_pm2.5[i])){
+    counter <- counter +1
+  }
+}
+BeijingData <- na.omit(BeijingData)
+cat("Se eliminaron", counter, "filas")
+
+```
+
+5-
+```{r}
+BeijingData$DireccionViento <- NULL
+cat("La columna Dirección del viento fue eliminada. Se elimina porque no es un valor número y su contenido no aporta mucho al análisis.")
+```
+
+6-
+```{r}
+
+groups_<-kmeans(BeijingData,centers=3,iter.max=1000,nstart=50)
+
+
+```
+
+7-
+```{r}
+centers_ <- groups_$centers
+rownames(centers_) <- c("Cluster 1","Cluster 2","Cluster 3")
+centers_ <- as.data.frame(centers_)
+max_ <- apply(centers_  , 2, max)
+min_ <- apply(centers_  , 2, min)
+centers_ <- rbind(min_, centers_)
+centers_ <- rbind(max_, centers_)
+
+colors<- c("black", "purple", "red")
+
+radarchart(as.data.frame(centers_),maxmin=TRUE,axistype=4,axislabcol="slategray4",
+           centerzero=FALSE,seg=8, cglcol="gray67",
+           pcol=colors,plty=1,plwd=5,title="Gráficos radar de los clusters")
+
+```
+
+8-
+```{r}
+JamboElbow <-rep(0,10)
+for(k in 1:10){
+  groups_<-kmeans(BeijingData,centers=k,nstart=50)
+  JamboElbow[k] <- groups_$tot.withinss}
+plot(JamboElbow, col="blue", type = "b")
+```
+
+### Elección Anticonceptivos
+1-
+```{r}
+contraceptivesData <- read.csv("eleccion_metodo_anticonceptivo.csv", sep=";", header = TRUE)
+```
+
+2-
+```{r}
+summary(contraceptivesData)
+dim(contraceptivesData)
+```
+
+3-
+```{r}
+str(contraceptivesData)
+
+```
+
+4-
+```{r}
+contraceptivesData <- contraceptivesData[-2]
+contraceptivesData <- contraceptivesData[-3]
+contraceptivesData <- contraceptivesData[-4]
+res<-PCA(contraceptivesData, scale.unit=TRUE, ncp=5, graph = FALSE)
+
+
+fviz_pca_biplot(res, col.var = "#FF1171", select.var = list(cos2 = 0.15), col.ind = "darkblue", select.ind = list(cos2 = 0.99), ggtheme = document_theme)
+cat("Basado en el gráfico anterior se puede determinar que:
+    Hay un fuerte relación entre la edad y la cantidad de hijos. Esto se puede interpretar como que entre aumenta la edad, más aumenta la cantidad de hijos.
+    Además se puede apreciar una serie de clusters en todo el plano. Este fenómeno se puede apreciar como que no hay una tendencia o patrón fuertemente marcado en el comportamiento.")
+```
+
+### Europa
+eurodist
+cmdscale(eurodist)
