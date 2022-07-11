@@ -1,0 +1,160 @@
+---
+title: "Asignación3_Derek_Arbaiza"
+author: "Derek Arbaiza Barrantes"
+date: '2022-07-07'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library("tm")
+library("wordcloud")
+library("readr")
+library("stringr")
+library("rvest")
+library("tibble")
+library("ggplot2")
+library("lubridate")
+library("scales")
+library("dplyr")
+library("forcats")
+```
+1)
+a)
+```{r}
+desvestido <- readr::read_lines("Desvestido.txt",locale = readr::locale(encoding = readr::guess_encoding("Desvestido.txt")[1,1][[1]]))
+desvestido <- paste0(desvestido, collapse = " ")
+
+parto <- readr::read_lines("Parto.txt",locale = readr::locale(encoding = readr::guess_encoding("Parto.txt")[1,1][[1]]))
+parto <- paste0(parto, collapse = " ")
+
+poema <- readr::read_lines("Poema.txt",locale = readr::locale(encoding = readr::guess_encoding("Poema.txt")[1,1][[1]]))
+poema <- paste0(poema, collapse = " ")
+
+resurreccion <- readr::read_lines("Resurreccion.txt",locale = readr::locale(encoding = readr::guess_encoding("Resurreccion.txt")[1,1][[1]]))
+resurreccion <- paste0(resurreccion, collapse = " ")
+
+esteEsMiAmor <- readr::read_lines("Esteesmiamor.txt",locale = readr::locale(encoding = readr::guess_encoding("Esteesmiamor.txt")[1,1][[1]]))
+esteEsMiAmor <- paste0(esteEsMiAmor, collapse = " ")
+
+poems <- data.frame(doc_id = c("Desvestido", "Parto", "Poema", "Resurrección", "Este es mi amor"), text = c(desvestido, parto,poema,resurreccion, esteEsMiAmor) ,stringsAsFactors = F)
+str(poems)
+
+ds <- DataframeSource(poems)
+corpus <- Corpus(ds)
+```
+
+b)
+```{r}
+corpus <- tm_map(corpus, removePunctuation) 
+corpus <- tm_map(corpus, content_transformer(tolower)) 
+corpus <- tm_map(corpus, removeNumbers) 
+corpus <- tm_map(corpus, removeWords, stopwords("spanish"))
+```
+
+c)
+```{r}
+term_document_matrix <- TermDocumentMatrix(corpus) 
+term_document_matrix <- as.matrix(term_document_matrix) 
+colnames(term_document_matrix) <- c("Desvestido", "Parto", "Poema", "Resurreccion", "Este es mi amor") 
+head(term_document_matrix)
+
+comparison.cloud(term.matrix = term_document_matrix,
+                 max.words=Inf,
+                 random.order=FALSE,
+                 colors=brewer.pal(18,"Dark2"),
+                 scale=c(6,1),
+                 title.size = 1.5)
+cat("Gráfico 1.1")
+
+commonality.cloud(term.matrix = term_document_matrix,
+                    comonality.measure = min,
+                  max.words = 5, 
+                  colors=brewer.pal(5,"Dark2"))
+cat("Gráfico 1.2")
+```
+
+d)
+```{r}
+comparison.cloud(term.matrix = term_document_matrix,
+                 max.words=15,
+                 random.order=FALSE,
+                 colors=brewer.pal(18,"Dark2"),
+                 scale=c(2,1),
+                 title.size = 1.5)
+cat("Gráfico 1.3")
+
+commonality.cloud(term.matrix = term_document_matrix,
+                  comonality.measure = max,
+                  max.words = 10, 
+                  colors=brewer.pal(5,"Dark2"))
+cat("Gráfico 1.4")
+```
+
+e)
+```{r}
+cat("En el gráfico 1.1, se puede apreciar la serie de palabras encontradas en la colección de poemas. Resaltan palabras como dicho, nunca y amo")
+cat("En el gráfico 1.2, se puede apreciar una sola palabra amor. Esto da a entender que es la única palabra que se usa en todos los poemas.")
+cat("En el gráfico 1.3, se puede apreciar la densidad de las palabras usadas pero decantando solo las 15 palabras más contadas.")
+cat("En el gráfico 1.4, se puede apreciar las palabras más usadas.")
+```
+
+2
+a)
+```{r}
+#a)	\\d+(\\.\\d+)?
+#Extraiga un numero de cualquier tamano y puede o no tener un punto.
+
+#b)	\\w+\\@ \\w+ \\. com
+#Extraiga lo que tenga caracteres de cualquier tamaño, seguido de un @, seguido de una serie de caracteres de cualquier tamaño, seguido de un .com 
+
+#c) (\\d{1,3}\\:?)+
+#Extraiga lo que tenga un número entre 1 o 3 caracteres y puede o no tener un : y se ejecutará múltiples veces.
+
+#d) \\-?\\d+ (\\,\\d+)?
+#Extraiga lo que empiece con dash -, seguido de un número de cualquier tamaño y puede seguir o no con una coma, seguido de un número de cualquier tamaño.
+
+```
+
+b)
+```{r}
+textToExtract <- "Tenemos una serie de números 4 , 5 o 3 debe extraerlos, aunque extraer números sueltos puede ser demasiado sencillo para un ejercicio, veamos qué pasa si agregamos decimales por ejemplo 2.4 o 45.3 y hasta, por qué no,
+3.14159265359, podemos también usar el signo de ’coma’ para separar los miles por ejemplo 2,500 o 1,345,928.52 aunque hay personas que prefieren utilizar el espacio en blanco para los miles, aunque cuando esto a veces pueda causar problemas, por ejemplo, 2 345 343 o 1 434 .”
+"
+
+
+str_view_all(string = textToExtract, pattern = "\\d+(\\.\\d+)?(\\,\\d+)?(\\s\\d+\\s)?(\\s\\d+\\s\\d+)?+")
+
+cat("\\d+(\\.\\d+)?(\\,\\d+)?(\\s\\d+\\s)?(\\s\\d+\\s\\d+)?+ --> Extraiga lo que empiece con un número y puede tener punto seguido de un número de cualqyier tamaño o puede seguir de un punto más un número de cualquier tamaño o puede seguir de espacio un número de cualquier tamaño y espacio o puede seguir de un espacio, número de cualquier tamaño, espacio y número de cualquier tamaño. Y eso se ejecuta múltiples veces.")
+```
+
+3)
+a)
+```{r}
+messages <- readr::read_lines("mensajes.txt",locale = readr::locale(encoding = readr::guess_encoding("mensajes.txt")[1,1][[1]]))
+messages <- paste0(messages, collapse = " ")
+
+
+```
+
+4)
+a)
+```{r}
+url <- "https://www.imdb.com/chart/top"
+page <- read_html(url, encoding = "UFT-8")
+tables <- html_table(page, fill = TRUE)
+df <- tables[[1]]
+
+movies <- df[, c(2,3)]
+movies$year <- str_extract(movies$`Rank & Title`, pattern = "\\d{4}")
+movies$year <- as.numeric(movies$year)
+movies$`Rank & Title` <- str_remove(movies$`Rank & Title`, pattern = "\\(\\d{4}\\)")
+movies$`Rank & Title` <- str_remove(movies$`Rank & Title`, pattern = "\\d+\\.\\s\\s\\s\\s\\s\\s\\s")
+str(movies)
+
+plot(movies$year, movies$`IMDb Rating`)
+```
+
